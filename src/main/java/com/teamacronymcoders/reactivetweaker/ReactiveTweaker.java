@@ -19,5 +19,6 @@ public class ReactiveTweaker {
         MineTweakerAPI.registerClass(RTReactants.class);
         MineTweakerAPI.registerClass(RTReactorConversions.class);
         MineTweakerAPI.registerClass(RTReactorInterior.class);
+        MineTweakerAPI.registerClass(RTTurbineCoil.class);
     }
 }
