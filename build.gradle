@@ -30,6 +30,11 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
+compileJava {
+    options.fork = true  // Fork your compilation into a child process
+    options.forkOptions.setMemoryMaximumSize("4g") // Set maximum memory to 4g
+}
+
 repositories {
     mavenCentral()
 }
