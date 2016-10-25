@@ -18,5 +18,6 @@ public class ReactiveTweaker {
     public void preInit(FMLPreInitializationEvent event) {
         MineTweakerAPI.registerClass(RTReactants.class);
         MineTweakerAPI.registerClass(RTReactorConversions.class);
+        MineTweakerAPI.registerClass(RTReactorInterior.class);
     }
 }
