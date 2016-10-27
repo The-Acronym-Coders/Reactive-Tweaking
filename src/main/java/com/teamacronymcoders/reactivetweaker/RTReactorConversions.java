@@ -1,6 +1,8 @@
 package com.teamacronymcoders.reactivetweaker;
 
+import com.blamejared.mtlib.utils.BaseUndoable;
 import erogenousbeef.bigreactors.api.registry.ReactorConversions;
+import minetweaker.MineTweakerAPI;
 import stanhebben.zenscript.annotations.Optional;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
@@ -16,6 +18,19 @@ public class RTReactorConversions {
             fissionRate = 0.01F;
         }
         ReactorConversions.register(sourceName, productName, reactivity, fissionRate);
+        float finalReactivity = reactivity;
+        float finalFissionRate = fissionRate;
+        MineTweakerAPI.apply(new BaseUndoable("Reactor Conversions") {
+            @Override
+            public void apply() {
+                RTHelper.register(sourceName, productName, finalReactivity, finalFissionRate);
+            }
+
+            @Override
+            public void undo() {
+                RTHelper.unregister(sourceName);
+            }
+        });
     }
 
 }

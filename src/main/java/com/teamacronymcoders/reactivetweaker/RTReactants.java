@@ -1,12 +1,8 @@
 package com.teamacronymcoders.reactivetweaker;
 
-import erogenousbeef.bigreactors.api.registry.Reactants;
+import com.blamejared.mtlib.utils.BaseUndoable;
+import minetweaker.MineTweakerAPI;
 import minetweaker.api.item.IIngredient;
-import minetweaker.api.item.IngredientItem;
-import minetweaker.api.liquid.ILiquidStack;
-import minetweaker.api.oredict.IngredientOreDict;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
 import stanhebben.zenscript.annotations.Optional;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
@@ -15,8 +11,18 @@ import stanhebben.zenscript.annotations.ZenMethod;
 public class RTReactants {
 
     @ZenMethod
-    public static void registerReactants(String name, boolean fuel, @Optional int color) {
-        Reactants.registerReactant(name, (fuel ? 0 : 1), color);
+    public static void registerReactant(String key, boolean fuel, @Optional int color) {
+        MineTweakerAPI.apply(new BaseUndoable("Reactants") {
+            @Override
+            public void apply() {
+                RTHelper.registerReactant(key, fuel ? 0 : 1, color);
+            }
+
+            @Override
+            public void undo() {
+                RTHelper.removeReactant(key);
+            }
+        });
     }
 
     @ZenMethod
@@ -24,18 +30,35 @@ public class RTReactants {
         if(reactantQty == 0) {
             reactantQty = 1000;
         }
-        if(ing instanceof IngredientOreDict) {
-            IngredientOreDict ore = (IngredientOreDict) ing;
-            Reactants.registerSolid((String) ore.getInternal(), reactantName, reactantQty);
-        } else if(ing instanceof IngredientItem) {
-            IngredientItem item = (IngredientItem) ing;
-            Reactants.registerSolid((ItemStack) item.getInternal(), reactantName, reactantQty);
-        }
+        int finalReactantQty = reactantQty;
+        MineTweakerAPI.apply(new BaseUndoable("Solids") {
+
+            @Override
+            public void apply() {
+                RTHelper.registerSolid((String) ing.getInternal(), reactantName, finalReactantQty);
+            }
+
+            @Override
+            public void undo() {
+                RTHelper.removeSolid((String) ing.getInternal());
+            }
+        });
     }
 
-    @ZenMethod
-    public static void registerFluid(ILiquidStack stack, String reactantName) {
-        Reactants.registerFluid((FluidStack) stack.getDefinition().asStack(stack.getAmount()).getInternal(), reactantName);
-    }
+    //not implemented in ER yet
+//    @ZenMethod
+//    public static void registerFluid(ILiquidStack stack, String reactantName) {
+//        MineTweakerAPI.apply(new BaseUndoable("Fluids") {
+//            @Override
+//            public void apply() {
+//                RTHelper.registerFluid(InputHelper.toFluid(stack), reactantName);
+//            }
+//
+//            @Override
+//            public void undo() {
+//                RTHelper.removeFluid(reactantName);
+//            }
+//        });
+//    }
 
 }

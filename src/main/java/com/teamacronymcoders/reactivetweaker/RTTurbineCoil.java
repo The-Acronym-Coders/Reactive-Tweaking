@@ -1,6 +1,7 @@
 package com.teamacronymcoders.reactivetweaker;
 
-import erogenousbeef.bigreactors.api.registry.TurbineCoil;
+import com.blamejared.mtlib.utils.BaseUndoable;
+import minetweaker.MineTweakerAPI;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
@@ -8,6 +9,16 @@ import stanhebben.zenscript.annotations.ZenMethod;
 public class RTTurbineCoil {
     @ZenMethod
     public static void registerBlock(String oreDictName, float efficiency, float bonus, float extractionRate) {
-        TurbineCoil.registerBlock(oreDictName, efficiency, bonus, extractionRate);
+        MineTweakerAPI.apply(new BaseUndoable("Turbine Coil") {
+            @Override
+            public void apply() {
+                RTHelper.registerBlock(oreDictName, efficiency, bonus, extractionRate);
+            }
+
+            @Override
+            public void undo() {
+                RTHelper.removeBlock(oreDictName);
+            }
+        });
     }
 }
