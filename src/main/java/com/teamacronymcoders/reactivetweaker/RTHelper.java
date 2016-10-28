@@ -7,7 +7,6 @@ import erogenousbeef.bigreactors.api.registry.ReactorConversions;
 import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.api.registry.TurbineCoil;
 import erogenousbeef.bigreactors.common.BRLog;
-import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,34 +141,34 @@ public class RTHelper {
         return solidToReactant.remove(key);
     }
 
-    public static FluidToReactantMapping removeFluid(String key) {
-        reactantToFluid.remove(key);
-        return fluidToReactant.remove(key);
-    }
+//    public static FluidToReactantMapping removeFluid(String key) {
+//        reactantToFluid.remove(key);
+//        return fluidToReactant.remove(key);
+//    }
 
     public static SourceProductMapping registerSolid(String oreDictName, String reactantName, int reactantAmount) {
         if(!reactants.containsKey(reactantName)) {
             throw new IllegalArgumentException("Unknown reactantName " + reactantName);
         } else {
             OreDictToReactantMapping mapping = new OreDictToReactantMapping(oreDictName, reactantName, reactantAmount);
-            solidToReactant.put(mapping.getSource(), mapping);
+            OreDictToReactantMapping old = solidToReactant.put(mapping.getSource(), mapping);
             SourceProductMapping reverseMapping = mapping.getReverse();
             mapReactant(reverseMapping.getSource(), reverseMapping, reactantToSolid);
-            return mapping;
+            return old;
         }
     }
 
-    public static FluidToReactantMapping registerFluid(FluidStack fluidStack, String reactantName) {
-        if(!reactants.containsKey(reactantName)) {
-            throw new IllegalArgumentException("Unknown reactantName " + reactantName);
-        } else {
-            FluidToReactantMapping mapping = new FluidToReactantMapping(fluidStack, reactantName);
-            SourceProductMapping reverseMapping = mapping.getReverse();
-            mapReactant(reverseMapping.getSource(), reverseMapping, reactantToFluid);
-            return fluidToReactant.put(mapping.getSource(), mapping);
-
-        }
-    }
+//    public static FluidToReactantMapping registerFluid(FluidStack fluidStack, String reactantName) {
+//        if(!reactants.containsKey(reactantName)) {
+//            throw new IllegalArgumentException("Unknown reactantName " + reactantName);
+//        } else {
+//            FluidToReactantMapping mapping = new FluidToReactantMapping(fluidStack, reactantName);
+//            SourceProductMapping reverseMapping = mapping.getReverse();
+//            mapReactant(reverseMapping.getSource(), reverseMapping, reactantToFluid);
+//            return fluidToReactant.put(mapping.getSource(), mapping);
+//
+//        }
+//    }
 
     private static void mapReactant(String reactantName, SourceProductMapping mapping, Map<String, List<SourceProductMapping>> map) {
         List<SourceProductMapping> list;

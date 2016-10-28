@@ -1,26 +1,32 @@
 package com.teamacronymcoders.reactivetweaker;
 
-import com.blamejared.mtlib.utils.BaseUndoable;
+import com.blamejared.mtlib.utils.BaseMapAddition;
+import com.teamacronymcoders.reactivetweaker.actions.BaseMultiMapAddition;
+import erogenousbeef.bigreactors.api.data.OreDictToReactantMapping;
+import erogenousbeef.bigreactors.api.data.ReactantData;
+import erogenousbeef.bigreactors.api.data.SourceProductMapping;
 import minetweaker.MineTweakerAPI;
 import minetweaker.api.item.IIngredient;
 import stanhebben.zenscript.annotations.Optional;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.teamacronymcoders.reactivetweaker.RTHelper.*;
+
 @ZenClass("mod.reactivetweaker.Reactants")
 public class RTReactants {
 
     @ZenMethod
     public static void registerReactant(String key, boolean fuel, @Optional int color) {
-        MineTweakerAPI.apply(new BaseUndoable("Reactants") {
+        Map<String, ReactantData> data = new HashMap<>();
+        data.put(key, new ReactantData(key, fuel ? ReactantData.ReactantType.Fuel : ReactantData.ReactantType.Waste, color));
+        MineTweakerAPI.apply(new BaseMapAddition<String, ReactantData>("Reactants", reactants, data) {
             @Override
-            public void apply() {
-                RTHelper.registerReactant(key, fuel ? 0 : 1, color);
-            }
-
-            @Override
-            public void undo() {
-                RTHelper.removeReactant(key);
+            protected String getRecipeInfo(Map.Entry<String, ReactantData> recipe) {
+                return recipe.getKey();
             }
         });
     }
@@ -30,17 +36,12 @@ public class RTReactants {
         if(reactantQty == 0) {
             reactantQty = 1000;
         }
-        int finalReactantQty = reactantQty;
-        MineTweakerAPI.apply(new BaseUndoable("Solids") {
-
+        Map<String, SourceProductMapping> data = new HashMap<>();
+        data.put(reactantName, new OreDictToReactantMapping((String) ing.getInternal(), reactantName, reactantQty));
+        MineTweakerAPI.apply(new BaseMultiMapAddition("Solids", solidToReactant, reactantToSolid, data) {
             @Override
-            public void apply() {
-                RTHelper.registerSolid((String) ing.getInternal(), reactantName, finalReactantQty);
-            }
-
-            @Override
-            public void undo() {
-                RTHelper.removeSolid((String) ing.getInternal());
+            protected String getRecipeInfo(Map.Entry recipe) {
+                return recipe.getKey() + "";
             }
         });
     }
